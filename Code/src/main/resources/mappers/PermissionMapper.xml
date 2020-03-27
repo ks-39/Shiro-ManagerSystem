@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ks39.dao.PermissionMapper">
+
+  <resultMap id="BaseResultMap" type="com.ks39.entity.Permission">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="pid" jdbcType="INTEGER" property="pid" />
+    <result column="permission_name" jdbcType="VARCHAR" property="permissionname" />
+    <result column="describe" jdbcType="VARCHAR" property="describe" />
+    <result column="url" jdbcType="VARCHAR" property="url"/>
+  </resultMap>
+
+<!--  1. getinfo  -->
+  <select id="PermissionGetList" resultMap="BaseResultMap" parameterType="com.ks39.entity.Permission">
+    select * from tb_permission
+    <where>
+      <if test="permissionname != null and permissionname != ''">
+       permission_name = #{permissionname}
+      </if>
+
+      <if test="pid != null and pid != ''">
+        pid = #{pid}
+      </if>
+    </where>
+  </select>
+
+<!--2. add-->
+  <insert id="PermissionAdd" parameterType="com.ks39.entity.Permission">
+--     1. 因为describe是sql关键字，使用` `
+        insert into tb_permission (pid,permission_name,url,`describe`) values (null,#{permissionname},#{url},#{describe});
+  </insert>
+
+  <!--3. edit-->
+  <update id="PermissionEdit" parameterType="com.ks39.entity.Permission">
+    update tb_permission
+    <set>
+      <if test="permissionname != null">
+        permission_name = #{permissionname},
+      </if>
+
+      <if test="url != null">
+        url = #{url},
+      </if>
+
+      <if test="describe != null">
+        `describe` = #{describe},
+      </if>
+
+    </set>
+    where pid = #{pid}
+  </update>
+
+  <!--4. delete-->
+  <delete id="PermissionDelete" parameterType="com.ks39.entity.Permission">
+        delete from tb_permission where pid = #{pid}
+    </delete>
+
+</mapper>

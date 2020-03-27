@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>add</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/Layui/css/layui.css">
+</head>
+<body>
+
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>添加权限</legend>
+</fieldset>
+
+<form class="layui-form" lay-filter="userform">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">权限名</label>
+        <div class="layui-input-block">
+            <input style="width: 250px" type="text" name="permissionname" lay-verify="required|permissionnameIsExist" autocomplete="off" placeholder="permission name" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">权限资源</label>
+        <div class="layui-input-block">
+            <input style="width: 250px" type="text" name="url" lay-verify="required" autocomplete="off" placeholder="url" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">权限描述</label>
+        <div class="layui-input-block">
+            <input style="width: 250px" type="text" name="describe" lay-verify="required" autocomplete="off" placeholder="describe" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button type="submit" class="layui-btn" lay-submit="" lay-filter="add">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+
+</form>
+
+<script src="/Layui/layui.js" charset="utf-8"></script>
+
+<script>
+    layui.use(['jquery','form'], function(){
+        var $ = layui.$ //重点处
+            ,layer = layui.layer;
+        var form = layui.form
+            ,layer = layui.layer
+
+        //自定义验证规则
+        form.verify({
+            permissionnameIsExist: function (value) {
+                var result = ""
+                $.ajax({
+                    url: '/permission/checkPermissionname',
+                    type: "post",
+                    async: false,   //ajax最后return时出的问题，ajax改为同步，最后把验证提示信息return，而不能在success或error中return。
+                    data: {'permissionname':value},
+
+                    success: function (data) {
+                        if(data.success == false){
+                            result = "该权限名已存在";
+                        }
+                    },
+                });
+                return result;
+            },
+        });
+
+        //监听提交
+        form.on('submit(add)', function (form) {
+            $.ajax({
+                url:'/permission/doAdd',
+                method:'post',
+                data:form.field,
+                dataType:'JSON',
+
+                success: function (data) {
+                    if(data.success) {
+                        layer.alert("添加成功")
+                    }else {
+                        layer.alert("添加失败,请重试")
+                    }
+                }
+            }) ;
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

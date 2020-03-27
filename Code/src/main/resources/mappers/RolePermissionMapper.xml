@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ks39.dao.rolePermissionMapper">
+
+    <resultMap id="BaseResultMap" type="com.ks39.entity.RolePermission">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <result column="rid" jdbcType="INTEGER" property="rid" />
+        <result column="pid" jdbcType="INTEGER" property="pid" />
+
+    </resultMap>
+
+<!--1. deleteByRoleId-->
+    <delete id="DeleteByRoleId">
+        delete from tb_role_permission where rid = #{rid}
+    </delete>
+
+<!--2. deleteByPid-->
+    <delete id="DeleteByPid">
+        delete from tb_role_permission where pid = #{pid}
+    </delete>
+
+<!--2. insert-->
+    <insert id="InsertRoleIdAndPermissionId">
+        INSERT INTO tb_role_permission(rid, pid)VALUES
+        <foreach collection="pids" item="pid" index="index" separator=",">
+            (
+            #{rid}
+            ,#{pid}
+            )
+        </foreach>
+    </insert>
+
+</mapper>

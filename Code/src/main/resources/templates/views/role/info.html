@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+
+<head>
+  <meta charset="UTF-8">
+  <title>用户管理</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+</head>
+
+<body>
+<div class="layui-fluid">
+  <div class="layui-row">
+    <div class="layui-col-xs12">
+      <div class="layui-card">
+
+        <div class="layui-card-header" style="font-size: 35px;color: #4E5465">角色管理
+        </div>
+        <hr>
+
+        <div class="layui-card-body">
+          <div class="layui-card-header">
+
+            <form class="layui-form" id="search_form" style="text-align: right">
+
+              <shiro:hasPermission name="/role/add">
+                <a href="javascript:;" class="layui-btn layui-btn-xs" id="addEvent" style="margin-right: 700px">
+                  <i class="layui-icon">&#xe654;</i>
+                  <span style="font-size: 15px">新增</span>
+                </a>
+              </shiro:hasPermission>
+
+              <div class="layui-inline">
+                <label class="layui-form-label">角色名</label>
+                <div class="layui-input-inline">
+                  <input type="text" name="rolename" autocomplete="off" class="layui-input">
+                </div>
+              </div>
+
+              <button lay-submit="" lay-filter="search" class="layui-btn layui-btn-sm layui-btn-primary table-action">
+                <i class="layui-icon">&#xe615;</i>
+                <span style="font-size: 15px">搜索</span>
+              </button>
+
+            </form>
+          </div>
+        </div>
+
+        <div class="layui-card-body">
+          <table id="roleform" lay-filter="test"></table>
+
+          <script type="text/html" id="barDemo_hash">
+
+            <shiro:hasPermission name="/role/edit">
+              <a class="layui-btn layui-btn-xs" lay-event="edit">
+                <i class="layui-icon">&#xe642;</i>
+                <span style="font-size: 13px">编辑</span>
+              </a>
+            </shiro:hasPermission>
+
+            <shiro:hasPermission name="/role/delete">
+              <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">
+                <i class="layui-icon">&#xe67e;</i>
+                <span style="font-size: 13px">删除</span>
+              </a>
+            </shiro:hasPermission>
+
+          </script>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+  //layui配置
+  layui.use(['jquery', 'table', 'form','util'], function () {
+    var $ = layui.jquery,
+            table = layui.table,
+            form = layui.form;
+
+    //初始化表单(前后台接口)
+    table.render({
+      method: 'post',
+      limit: 10,
+      elem: '#roleform',
+      height: 'full-235',
+      url: '/role/getinfo', //数据接口
+      page: true, //开启分页
+      smartReloadModel: true,//搜索之后自动重新加载表单数据
+      cols: [
+        [ //表头
+          {
+            field: 'rid',
+            title: 'ID',
+            width: 80,
+            sort: true,
+            fixed: 'left'
+          },
+
+          {
+            field: 'rolename',
+            title: '角色名',
+            width: 120,
+            sort: true,
+          },
+
+          {
+            field: 'describe',
+            title: '角色描述',
+            width: 160,
+            sort: true,
+          },
+
+          {
+            field: 'permission_name',
+            title: '角色权限',
+            width: 320,
+          },
+
+          {
+            fixed: 'right',
+            title:'操作',
+            width: 240,
+            align: 'center',
+            toolbar: '#barDemo_hash'
+          }
+        ]
+      ]
+    });
+
+    // //搜索事件
+    form.on('submit(search)', function (form) {
+      table.reload('roleform', {
+        where: form.field
+      });
+      return false;
+    });
+
+    //添加事件
+    $('#addEvent').on('click', function () {
+      layer.open({
+        type: 2,
+        title: "添加角色",
+        //content需要改成controller的mapping
+        content: "role/add",
+        area: ['40%','85%'],
+        maximum: true,
+        shadeClose: true,
+        end: function () {
+            table.reload("roleform");
+        }
+      })
+    });
+
+    //监听行工具事件（删除和修改）
+    table.on('tool(test)', function(obj){
+      if(obj.event === 'del'){
+        Delete(obj.data.rid);
+      } else if(obj.event === 'edit'){
+        Edit(obj.data.rid);
+      }
+    });
+
+    //1. Delete
+    function Delete(rid) {
+      layer.confirm("确定要删除该角色吗？",{icon:3, title: '提示'},
+              //1. 确定后执行
+              function(index){
+                $.ajax({
+                  url: '/role/delete/' + rid ,
+                  type: "post",
+                  async: false,   //ajax最后return时出的问题，ajax改为同步，最后把验证提示信息return，而不能在success或error中return。
+
+                  success: function (data) {
+                    if(data.success){
+                      layer.alert("删除成功");
+                      layer.close(index);
+                      table.reload("roleform")
+                    }else{
+                      layer.alert("删除失败,请重试");
+                      layer.close(index);
+                      table.reload("roleform")
+                    }
+                  }
+                });
+              },
+              //取消后执行
+              function (index) {
+                layer.close(index);
+              }
+      );
+    }
+
+    //2. Edit
+    function Edit(rid){
+      layer.open({
+        type: 2,
+        title: "编辑",
+        //content需要改成controller的mapping
+        content: '/role/edit/' + rid,
+        area: ['40%', '85%'],
+        maxmin: true,
+        shadeClose: true,
+
+        //1. 关闭窗口后刷新表单
+        end: function () {
+          table.reload("roleform");
+        }
+      });
+    }
+  });
+</script>
+</body>
+</html>
+

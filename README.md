@@ -20,11 +20,4 @@
 
 ### 4. 开发时间:2020/3/10 —— 2020/3/25
 
-### 5. 项目展示
-![](https://github.com/ks-39/Shiro-ManagerSystem/blob/master/Images/login.jpg)
-***
-
-![](https://github.com/ks-39/Shiro-ManagerSystem/blob/master/Images/index.jpg)
-***
-
-![](https://github.com/ks-39/Shiro-ManagerSystem/blob/master/Images/info.jpg)
+### 5. [项目展示](https://github.com/ks-39/Shiro-ManagerSystem/tree/master/Images)
